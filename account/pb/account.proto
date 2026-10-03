@@ -1,6 +1,7 @@
 syntax = "proto3";
-
 package pb;
+
+option go_package = "github.com/nekkuzuria/go-grpc-graphql-microservice/account/pb";
 
 message Account {
   string id = 1;

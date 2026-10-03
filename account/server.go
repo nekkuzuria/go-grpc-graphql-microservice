@@ -1,9 +1,12 @@
+//go:generate protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./pb/account.proto
 package account
 
 import (
 	"context"
 	"fmt"
 	"net"
+
+	"github.com/nekkuzuria/go-grpc-graphql-microservice/account/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -18,18 +21,18 @@ func ListenGRPC(s Service, port int) error {
 		return err
 	}
 	serv := grpc.NewServer()
-	pb.(serv,)
+	pb.RegisterAccountServiceServer(serv, &grpcServer{s})
 	reflection.Register(serv)
 	return serv.Serve(lis)
 }
 
-func (s *grpcServer) PostAccount(ctx context.Context, r *pb.PostAcoountRequest) (*pb.PostAccountResponse, error) {
+func (s *grpcServer) PostAccount(ctx context.Context, r *pb.PostAccountRequest) (*pb.PostAccountResponse, error) {
 	a, err := s.service.PostAccount(ctx, r.Name)
 	if err != nil {
 		return nil, err
 	}
 	return &pb.PostAccountResponse{Account: &pb.Account{
-		Id: a.ID,
+		Id:   a.ID,
 		Name: a.Name,
 	}}, nil
 }
@@ -40,7 +43,7 @@ func (s *grpcServer) GetAccount(ctx context.Context, r *pb.GetAccountRequest) (*
 		return nil, err
 	}
 	return &pb.GetAccountResponse{Account: &pb.Account{
-		Id: a.ID,
+		Id:   a.ID,
 		Name: a.Name,
 	}}, nil
 }
@@ -53,10 +56,10 @@ func (s *grpcServer) GetAccounts(ctx context.Context, r *pb.GetAccountsRequest) 
 	accounts := []*pb.Account{}
 	for _, p := range res {
 		accounts = append(accounts, &pb.Account{
-			Id: p.ID,
+			Id:   p.ID,
 			Name: p.Name,
 		})
 	}
 
-	return &pb.GetAccountsReponse{Accounts: accounts}, nil
+	return &pb.GetAccountResponse{Accounts: accounts}, nil
 }
